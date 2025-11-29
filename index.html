@@ -496,6 +496,9 @@
 
           <div class="result-footer">
             相性が良いタイプ：<span id="result-best"></span><br>
+            <button id="copy-url-btn" class="btn btn-ghost" style="margin-top:8px;" type="button">
+              診断結果のURLをコピーする
+            </button><br>
             <button id="restart-btn" class="btn btn-ghost" style="margin-top:8px;" type="button">
               もう一度診断する
             </button>
@@ -1094,6 +1097,7 @@
     const resultImageEl = document.getElementById("result-image");
 
     const characterListEl = document.getElementById("character-list");
+    const copyUrlBtn = document.getElementById("copy-url-btn");
 
     // ===============================
     // 画面描画（質問）
@@ -1325,6 +1329,31 @@
     });
 
     restartBtn.addEventListener("click", resetQuiz);
+
+       copyUrlBtn.addEventListener("click", () => {
+     const url = new URL(window.location.href);
+     const currentCode = resultCodeEl.textContent.trim();
+
+     // 念のため type が無い場合は付けておく
+     if (currentCode && !url.searchParams.get("type")) {
+       url.searchParams.set("type", currentCode);
+     }
+
+     const shareUrl = url.toString();
+
+     if (navigator.clipboard && navigator.clipboard.writeText) {
+       navigator.clipboard.writeText(shareUrl)
+         .then(() => {
+           alert("この診断結果のURLをコピーしました。");
+         })
+         .catch(() => {
+           alert("URLのコピーに失敗しました。手動でコピーしてください。");
+         });
+     } else {
+       // 古いブラウザ向けフォールバック
+       window.prompt("このURLをコピーしてください。", shareUrl);
+     }
+   });
 
     // 初期描画
     buildCharacterList();
