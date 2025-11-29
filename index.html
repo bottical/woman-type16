@@ -1,0 +1,929 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>ウーマンタイプ16診断</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --accent: #0f766e;
+      --accent-soft: #ccfbf1;
+      --accent-strong: #0f766e;
+      --danger: #f97373;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Noto Sans JP", sans-serif;
+      background: radial-gradient(circle at top, #ecfeff 0, #f9fafb 38%, #f9fafb 100%);
+      color: var(--text);
+    }
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .title-block {
+      text-align: center;
+    }
+    .title-block h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--accent-strong);
+    }
+    .title-block p {
+      margin: 4px 0 0;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 8px 12px 32px;
+    }
+    .card {
+      width: 100%;
+      max-width: 720px;
+      background: var(--card);
+      border-radius: 20px;
+      padding: 20px 18px 24px;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+    }
+    @media (min-width: 768px) {
+      header { padding: 20px 24px; }
+      .card { padding: 24px 28px 28px; border-radius: 24px; }
+      .title-block h1 { font-size: 1.9rem; }
+      .title-block p { font-size: 0.95rem; }
+    }
+
+    .quiz-header {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .quiz-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .badge {
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      border: 1px solid rgba(15, 118, 110, 0.15);
+      background: rgba(240, 253, 250, 0.8);
+      color: var(--accent-strong);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .progress {
+      width: 100%;
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-inner {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #14b8a6, #0f766e);
+      width: 0%;
+      transition: width 200ms ease-out;
+    }
+
+    .question-index {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .question-text {
+      margin-top: 12px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      text-align: center;
+      line-height: 1.5;
+      color: #111827;
+    }
+    .option-labels {
+      margin-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .option-labels span {
+      max-width: 46%;
+    }
+
+    .hearts-row {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+    .heart-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 120ms ease-out, box-shadow 120ms, background 120ms;
+      background: #f9fafb;
+      box-shadow: 0 0 0 1px #e5e7eb;
+      font-size: 20px;
+      position: relative;
+    }
+    .heart-btn[data-side="A"] { color: #fb7185; }
+    .heart-btn[data-side="B"] { color: #0f766e; }
+    .heart-btn:hover {
+      transform: translateY(-1px) scale(1.05);
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+      background: #fefce8;
+    }
+    .heart-btn.selected {
+      transform: translateY(-1px) scale(1.08);
+      background: #fef9c3;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
+    }
+    .heart-btn.small {
+      width: 32px;
+      height: 32px;
+      font-size: 16px;
+    }
+
+    .scale-labels {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 0 6px;
+    }
+
+    .nav-row {
+      margin-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      border-radius: 999px;
+      border: none;
+      font-size: 0.9rem;
+      padding: 10px 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background 120ms, transform 80ms, box-shadow 120ms, color 120ms;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: #0f766e;
+      color: white;
+      box-shadow: 0 8px 18px rgba(15, 118, 110, 0.35);
+    }
+    .btn-primary:hover {
+      background: #115e59;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(15, 118, 110, 0.4);
+    }
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid #e5e7eb;
+    }
+    .btn-ghost:hover {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    /* Result styles */
+    .result-header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .result-tag {
+      font-size: 0.75rem;
+      color: var(--accent-strong);
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 118, 110, 0.15);
+      background: rgba(240, 253, 250, 0.9);
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+    .result-type-name {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin: 4px 0 4px;
+      color: #0f172a;
+    }
+    .result-code {
+      font-size: 0.9rem;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .result-catch {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: #4b5563;
+    }
+    .axis-chips {
+      margin: 18px 0 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+    .axis-chip {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #ecfeff;
+      color: #0f766e;
+      border: 1px solid rgba(14, 116, 144, 0.25);
+    }
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 16px;
+      font-size: 0.9rem;
+    }
+    @media (min-width: 768px) {
+      .result-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    .result-section {
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+    }
+    .result-section h3 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin: 0 0 4px;
+      color: #374151;
+    }
+    .result-section p {
+      margin: 0;
+      color: #4b5563;
+      line-height: 1.5;
+    }
+    .result-section ul {
+      margin: 4px 0 0 1.1em;
+      padding: 0;
+      color: #4b5563;
+    }
+    .result-section li {
+      margin-bottom: 2px;
+    }
+    .result-footer {
+      margin-top: 18px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="title-block">
+        <h1>ウーマンタイプ16診断</h1>
+        <p>あなたの「生き方・恋愛・仕事スタイル」を4軸でタイプ分けします</p>
+      </div>
+    </header>
+    <main>
+      <div class="card">
+        <!-- Quiz view -->
+        <div id="quiz-view">
+          <div class="quiz-header">
+            <div class="quiz-header-top">
+              <div class="badge">ウーマンタイプ16 診断テスト</div>
+              <div id="progress-text" class="question-index"></div>
+            </div>
+            <div class="progress"><div id="progress-bar" class="progress-inner"></div></div>
+          </div>
+
+          <div id="question-block">
+            <div id="question-index-label" class="question-index"></div>
+            <div id="question-text" class="question-text"></div>
+
+            <div class="option-labels">
+              <span id="label-a"></span>
+              <span id="label-b" style="text-align:right"></span>
+            </div>
+
+            <div class="hearts-row" id="hearts-row"></div>
+
+            <div class="scale-labels">
+              <span>A寄り</span>
+              <span>B寄り</span>
+            </div>
+          </div>
+
+          <div class="nav-row">
+            <button id="prev-btn" class="btn btn-ghost" type="button">
+              ← 戻る
+            </button>
+            <button id="next-btn" class="btn btn-primary" type="button" disabled>
+              次へ →
+            </button>
+          </div>
+        </div>
+
+        <!-- Result view -->
+        <div id="result-view" style="display:none;">
+          <div class="result-header">
+            <div class="result-tag">診断結果</div>
+            <div id="result-type-name" class="result-type-name"></div>
+            <div id="result-code" class="result-code"></div>
+            <div id="result-catch" class="result-catch"></div>
+          </div>
+
+          <div id="axis-chips" class="axis-chips"></div>
+
+          <div class="result-grid">
+            <div class="result-section">
+              <h3>恋愛スタイル</h3>
+              <p id="result-love"></p>
+            </div>
+            <div class="result-section">
+              <h3>仕事スタイル</h3>
+              <p id="result-work"></p>
+            </div>
+            <div class="result-section">
+              <h3>強み</h3>
+              <ul id="result-strengths"></ul>
+            </div>
+            <div class="result-section">
+              <h3>気をつけたいポイント</h3>
+              <ul id="result-weaknesses"></ul>
+            </div>
+          </div>
+
+          <div class="result-footer">
+            相性が良いタイプ：<span id="result-best"></span><br>
+            <button id="restart-btn" class="btn btn-ghost" style="margin-top:8px;" type="button">
+              もう一度診断する
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ===============================
+    // 質問定義
+    // ===============================
+
+    /**
+     * axis: "QF" | "SM" | "CW" | "HG"
+     * direction: +1 = A側が軸の先頭文字寄り、-1 = A側が軸の後半文字寄り
+     */
+    const QUESTIONS = [
+      // QF（Queen / Flow）主導力
+      {
+        id: 1,
+        axis: "QF",
+        direction: +1,
+        text: "デートの行き先は、どちらかというと…？",
+        aLabel: "A. 自分が行きたいところを提案したい",
+        bLabel: "B. 相手の希望を優先したい",
+      },
+      {
+        id: 2,
+        axis: "QF",
+        direction: +1,
+        text: "グループで動くとき、あなたは？",
+        aLabel: "A. 自然とまとめ役・進行役になりがち",
+        bLabel: "B. 流れに合わせて動くことが多い",
+      },
+      {
+        id: 3,
+        axis: "QF",
+        direction: -1,
+        text: "相手の予定や都合に合わせすぎて、疲れることが…",
+        aLabel: "A. よくある（合わせすぎてしまう）",
+        bLabel: "B. あまりない（自分のペースも守る）",
+      },
+      {
+        id: 4,
+        axis: "QF",
+        direction: +1,
+        text: "大事な場面での「決断」は…",
+        aLabel: "A. 最終的には自分で決めたい",
+        bLabel: "B. 周りや相手の意見を優先したい",
+      },
+
+      // SM（Sun / Moon）感情の出し方
+      {
+        id: 5,
+        axis: "SM",
+        direction: +1,
+        text: "嬉しいことや腹が立つことがあったとき、",
+        aLabel: "A. すぐ顔や態度に出る・SNSにも書きがち",
+        bLabel: "B. まずは自分の中で消化してから話す",
+      },
+      {
+        id: 6,
+        axis: "SM",
+        direction: -1,
+        text: "本音を人に話すタイミングは？",
+        aLabel: "A. かなり慎重で、時間をかけてから話す",
+        bLabel: "B. その場の流れでわりとすぐ話す",
+      },
+      {
+        id: 7,
+        axis: "SM",
+        direction: +1,
+        text: "恋人や友達といるときのあなたは、",
+        aLabel: "A. リアクション大きめで場を盛り上げる",
+        bLabel: "B. 落ち着いて聞き役になることが多い",
+      },
+      {
+        id: 8,
+        axis: "SM",
+        direction: -1,
+        text: "落ち込んだときの過ごし方は？",
+        aLabel: "A. ひとりで静かに考えたい・こもりたい",
+        bLabel: "B. 誰かと話したり、外に出て気分転換したい",
+      },
+
+      // CW（Classic / Wild）人生ペース
+      {
+        id: 9,
+        axis: "CW",
+        direction: -1,
+        text: "今の生活スタイルについて、どちらが近い？",
+        aLabel: "A. 予定はその日の気分やノリで決まることが多い",
+        bLabel: "B. ある程度ルーティンや計画に沿って動く",
+      },
+      {
+        id: 10,
+        axis: "CW",
+        direction: +1,
+        text: "転職や引っ越しなど、大きな変化について",
+        aLabel: "A. 慎重に考えてから動きたい",
+        bLabel: "B. チャンスがあれば割とすぐ動きたい",
+      },
+      {
+        id: 11,
+        axis: "CW",
+        direction: -1,
+        text: "旅行プランを立てるとしたら？",
+        aLabel: "A. 現地で気分で決めたい・ノープランも好き",
+        bLabel: "B. 事前に行き先やスケジュールを組んでおきたい",
+      },
+      {
+        id: 12,
+        axis: "CW",
+        direction: +1,
+        text: "理想の恋愛は…",
+        aLabel: "A. 長く安定して続く、落ち着いた関係",
+        bLabel: "B. ドキドキや刺激も常にほしい関係",
+      },
+
+      // HG（Heart / Goal）価値観
+      {
+        id: 13,
+        axis: "HG",
+        direction: -1,
+        text: "今いちばん優先したいのは？",
+        aLabel: "A. 仕事やお金、スキルアップなどの目標達成",
+        bLabel: "B. 家族・恋人・友人との時間や安心感",
+      },
+      {
+        id: 14,
+        axis: "HG",
+        direction: +1,
+        text: "恋人選びでより重視するのは？",
+        aLabel: "A. 一緒にいて心が落ち着くかどうか",
+        bLabel: "B. 将来設計や価値観・生活レベルが合うか",
+      },
+      {
+        id: 15,
+        axis: "HG",
+        direction: -1,
+        text: "忙しい時期にデートの誘いが来たら…",
+        aLabel: "A. 仕事や予定を優先して断ることも多い",
+        bLabel: "B. なるべく時間を作って会いにいきたい",
+      },
+      {
+        id: 16,
+        axis: "HG",
+        direction: +1,
+        text: "「幸せ」を感じる瞬間に近いのは？",
+        aLabel: "A. 大切な人とゆっくりご飯を食べているとき",
+        bLabel: "B. 目標を達成して、自分を誇らしく思えたとき",
+      },
+    ];
+
+    // ハート6段階の数値（中央で符号を反転する）
+    // index: 0〜5 => [-3, -2, -1, +1, +2, +3]
+    const HEART_VALUES = [-3, -2, -1, 1, 2, 3];
+
+    // 軸のラベル
+    const AXIS_LABELS = {
+      Q: "Q：Queen（主導的・自分で決めたい）",
+      F: "F：Flow（調整的・相手に合わせやすい）",
+      S: "S：Sun（感情を外に出しやすい）",
+      M: "M：Moon（感情を内側で消化しやすい）",
+      C: "C：Classic（安定・堅実・ルーティン派）",
+      W: "W：Wild（変化・刺激・チャレンジ派）",
+      H: "H：Heart（人・気持ち重視）",
+      G: "G：Goal（目標・成果重視）",
+    };
+
+    // ===============================
+    // タイプ定義
+    // ===============================
+    const TYPE_PROFILES = {
+      QSWG: {
+        name: "カリスマ野心クイーン",
+        catch: "場を動かす、派手めの“革命ガール”。",
+        love: "追う恋が好き。人生のパートナーは“戦友”ポジションの人を求めがち。",
+        work: "目標から逆算して動くリーダータイプ。プロジェクトの推進役に向いています。",
+        strengths: ["影響力が高い", "決断力・突破力がある", "周りを巻き込むのが得意"],
+        weaknesses: ["人に任せるのが苦手になりやすい", "ペースが合わない相手にイライラしがち"],
+        bestMatch: ["FMC H", "FMCG"],
+      },
+      QSWH: {
+        name: "パーティー姉御",
+        catch: "楽しませる天才。人心掌握の魔女。",
+        love: "一緒に楽しめる人が最優先。ドキドキと安心のバランスを大事にします。",
+        work: "場づくりと調整の両方ができるムードメーカー。イベントや接客も◎。",
+        strengths: ["その場を一気に明るくできる", "人の本音を引き出すのがうまい", "頼られやすい"],
+        weaknesses: ["自分の心のケアを後回しにしがち", "ノリで引き受けすぎて疲れることも"],
+        bestMatch: ["FM CG", "FMCH"],
+      },
+      QSCG: {
+        name: "戦略家リーダー女子",
+        catch: "静かに勝ち続ける“デキる女”。",
+        love: "恋愛に振り回されにくく、対等なパートナーシップを求めがち。",
+        work: "計画・戦略・マネジメントが得意。管理職やプロジェクトリーダー向き。",
+        strengths: ["安定して結果を出せる", "論理的で筋が通っている", "信頼されやすい"],
+        weaknesses: ["隙がなく、近寄りがたく見られることも", "弱みを見せるのが苦手"],
+        bestMatch: ["F SCH", "FSWG"],
+      },
+      QSCH: {
+        name: "お姉さん幹事長",
+        catch: "気遣い＆決断のバランス最強。",
+        love: "相手のために動きつつ、関係全体を俯瞰して支えるタイプ。",
+        work: "調整・進行・サポートが得意。チームに欠かせない存在になりやすい。",
+        strengths: ["面倒見がよく信頼される", "状況判断がうまい", "人をまとめる力がある"],
+        weaknesses: ["自分が我慢役になりがち", "“頼れる人”を演じ続けて疲れることも"],
+        bestMatch: ["FMWG", "FMW H"],
+      },
+      QMWG: {
+        name: "ストイック変革クイーン",
+        catch: "静かに挑む“革命の職人”。",
+        love: "自分の世界を尊重してくれる距離感のある関係を好みます。",
+        work: "研究・開発・企画など、深く掘る仕事向き。変革プロジェクトにも強い。",
+        strengths: ["集中力が高い", "独自の視点を持っている", "継続して努力できる"],
+        weaknesses: ["一人で抱え込みやすい", "完璧を求めすぎて動き出しが遅れることも"],
+        bestMatch: ["FSWH", "FSWG"],
+      },
+      QMWH: {
+        name: "裏方プロデューサー女子",
+        catch: "“縁の下の実力者”。表より裏が向いてる。",
+        love: "表立って甘えるより、そっと支えるスタイル。情はとても深い。",
+        work: "舞台裏で人を活かすのが得意。マネージャー・プロデューサー系◎。",
+        strengths: ["観察眼が鋭い", "相手の強みを引き出せる", "トラブル時に冷静"],
+        weaknesses: ["自分の評価を低く見がち", "感謝されにくい位置に回りやすい"],
+        bestMatch: ["F SCH", "FSCG"],
+      },
+      QMCG: {
+        name: "静かなエリート",
+        catch: "寡黙に結果を出す“影の実力者”。",
+        love: "少数精鋭。ごく限られた人にだけ深く心を開きます。",
+        work: "専門職・企画・分析などで安定した成果を出すタイプ。",
+        strengths: ["堅実で信頼される", "ミスが少ない", "長期的な視点で動ける"],
+        weaknesses: ["柔軟な方向転換が苦手", "感情表現が少なく誤解されがち"],
+        bestMatch: ["FSWH", "FMW H"],
+      },
+      QMCH: {
+        name: "頼れる参謀おかん",
+        catch: "静かな愛情で支える“裏のボス”。",
+        love: "相手を支え、相手の成長を一緒に喜べるタイプ。",
+        work: "チームの土台づくり・ナレッジ蓄積・後輩育成などで真価を発揮。",
+        strengths: ["安心感がある", "実直で裏切らない", "全体を俯瞰して支えられる"],
+        weaknesses: ["自分の希望を言うのが苦手", "頼られすぎてキャパオーバーになりやすい"],
+        bestMatch: ["FSWG", "FSCH"],
+      },
+      FSWG: {
+        name: "フットワーク軽めフリーランサー",
+        catch: "ノリで世界を広げる天性の“自由人”。",
+        love: "フィーリング重視。楽しくなければ続かないタイプ。",
+        work: "動きながら考える営業・接客・クリエイティブなどに向く。",
+        strengths: ["行動が早い", "社交性が高い", "直感でチャンスを掴める"],
+        weaknesses: ["飽きやすい", "細かい計画や管理が苦手"],
+        bestMatch: ["QMCH", "QSCG"],
+      },
+      FSWH: {
+        name: "恋愛エンタメヒロイン",
+        catch: "“恋に落ちやすい”天性のヒロイン。",
+        love: "恋愛は人生最大のエンタメ。ときめきと物語性を求めます。",
+        work: "人と関わる仕事全般に向く。接客・広報・エンタメ系◎。",
+        strengths: ["愛嬌がある", "人を楽しませられる", "感情表現が豊か"],
+        weaknesses: ["気分に左右されやすい", "恋愛に気持ちを持っていかれがち"],
+        bestMatch: ["QMWG", "QMCG"],
+      },
+      FSCG: {
+        name: "調整力オフィスヒロイン",
+        catch: "優しさと有能さを兼ねた“仕事できる女子”。",
+        love: "相手をよく観察し、無理のない距離感で付き合うタイプ。",
+        work: "調整・進行管理・事務周りをそつなくこなすオールラウンダー。",
+        strengths: ["器用で気が利く", "周りをよく見ている", "トラブル対応も上手"],
+        weaknesses: ["自分の負担を抱え込んでしまう", "“便利な人”扱いされがち"],
+        bestMatch: ["QMWH", "QSCG"],
+      },
+      FSCH: {
+        name: "癒し系ムードメイカー",
+        catch: "存在だけで“場を柔らかくする”特別な人。",
+        love: "安心感を何より大切にする。ゆるくて温かい関係が理想。",
+        work: "職場の空気を良くする貴重な存在。サポート職全般に強い。",
+        strengths: ["聞き上手", "相手の立場に立てる", "場の雰囲気を和らげる"],
+        weaknesses: ["嫌と言いづらく、抱え込みやすい", "優先順位が自分以外になりがち"],
+        bestMatch: ["QSCG", "QMWH"],
+      },
+      FMWG: {
+        name: "さりげない才能クリエイター",
+        catch: "無自覚な天才肌。作品で語るタイプ。",
+        love: "ゆっくりと信頼を深めていく恋愛スタイル。",
+        work: "クリエイティブ・技術・分析系に向く。裏方で光るタイプ。",
+        strengths: ["センスがある", "洞察力が高い", "柔軟に発想できる"],
+        weaknesses: ["締切管理が苦手なことも", "自分の価値を低く見積もりがち"],
+        bestMatch: ["QSCH", "FSCG"],
+      },
+      FMWH: {
+        name: "流されロマンチスト",
+        catch: "恋とご縁に弱い“ふわふわ女子”。",
+        love: "自分から動くより、誘われて始まる恋が多め。情はとても深い。",
+        work: "人・モノ・雰囲気を扱う仕事に向く。美容・接客・販売など。",
+        strengths: ["空気を読むのがうまい", "優しくて距離感も柔らかい", "直感が鋭い"],
+        weaknesses: ["依存しやすい", "決断を人に任せがち"],
+        bestMatch: ["QSWG", "QMWG"],
+      },
+      FMCG: {
+        name: "堅実マイペース職人",
+        catch: "ブレずに積み上げる“ミニマル女子”。",
+        love: "一度決めた相手を大事にする、一途タイプ。",
+        work: "経理・事務・研究・職人系など、コツコツ型の仕事に向く。",
+        strengths: ["継続力がある", "細かい作業が得意", "無駄が少ない"],
+        weaknesses: ["変化への抵抗感が強め", "チャンスを見送ってしまうことも"],
+        bestMatch: ["QSWH", "QSCG"],
+      },
+      FMCH: {
+        name: "おだやか家庭派",
+        catch: "家庭的で優しい“安らぎの象徴”。",
+        love: "相手を立てつつ、穏やかな関係を育てるスタイル。",
+        work: "サポート職やバックオフィスで、着実に貢献するタイプ。",
+        strengths: ["思いやりが深い", "安定志向で安心感がある", "争いを避け調和をつくる"],
+        weaknesses: ["自己主張が弱い", "本音を飲み込みがち"],
+        bestMatch: ["QSWG", "QSWH"],
+      },
+    };
+
+    // ===============================
+    // 状態とDOM
+    // ===============================
+    let currentIndex = 0; // 0-based
+    const answers = {};   // questionId -> 0〜5 (ハートindex)
+
+    const quizView = document.getElementById("quiz-view");
+    const resultView = document.getElementById("result-view");
+
+    const progressTextEl = document.getElementById("progress-text");
+    const progressBarEl = document.getElementById("progress-bar");
+    const qIndexLabelEl = document.getElementById("question-index-label");
+    const qTextEl = document.getElementById("question-text");
+    const labelAEl = document.getElementById("label-a");
+    const labelBEl = document.getElementById("label-b");
+    const heartsRowEl = document.getElementById("hearts-row");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+
+    const resultTypeNameEl = document.getElementById("result-type-name");
+    const resultCodeEl = document.getElementById("result-code");
+    const resultCatchEl = document.getElementById("result-catch");
+    const resultLoveEl = document.getElementById("result-love");
+    const resultWorkEl = document.getElementById("result-work");
+    const resultStrengthsEl = document.getElementById("result-strengths");
+    const resultWeaknessesEl = document.getElementById("result-weaknesses");
+    const resultBestEl = document.getElementById("result-best");
+    const axisChipsEl = document.getElementById("axis-chips");
+    const restartBtn = document.getElementById("restart-btn");
+
+    // ===============================
+    // 画面描画
+    // ===============================
+    function renderQuestion() {
+      const total = QUESTIONS.length;
+      const q = QUESTIONS[currentIndex];
+      const answeredIndex = answers[q.id];
+
+      // progress
+      progressTextEl.textContent = `質問 ${currentIndex + 1} / ${total}`;
+      const progressPercent = ((currentIndex) / total) * 100;
+      progressBarEl.style.width = `${progressPercent}%`;
+
+      // question text
+      qIndexLabelEl.textContent = `Q${String(currentIndex + 1).padStart(2, "0")}`;
+      qTextEl.textContent = q.text;
+      labelAEl.textContent = q.aLabel;
+      labelBEl.textContent = q.bLabel;
+
+      // hearts
+      heartsRowEl.innerHTML = "";
+      for (let i = 0; i < 6; i++) {
+        const btn = document.createElement("button");
+        const side = i < 3 ? "A" : "B";
+        btn.className = "heart-btn" + (i === 1 || i === 4 ? " small" : "");
+        btn.dataset.value = String(i);
+        btn.dataset.side = side;
+        btn.innerHTML = "❤";
+        if (answeredIndex === i) {
+          btn.classList.add("selected");
+        }
+        btn.addEventListener("click", () => {
+          answers[q.id] = i;
+          renderQuestion(); // 再描画して選択状態を反映
+        });
+        heartsRowEl.appendChild(btn);
+      }
+
+      // buttons
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = answers[q.id] == null;
+      if (currentIndex === total - 1) {
+        nextBtn.textContent = "結果を見る →";
+      } else {
+        nextBtn.textContent = "次へ →";
+      }
+    }
+
+    function resetQuiz() {
+      Object.keys(answers).forEach(key => delete answers[key]);
+      currentIndex = 0;
+      quizView.style.display = "";
+      resultView.style.display = "none";
+      renderQuestion();
+    }
+
+    // ===============================
+    // スコア計算と結果表示
+    // ===============================
+    function calculateResult() {
+      const axisScores = {
+        QF: 0,
+        SM: 0,
+        CW: 0,
+        HG: 0,
+      };
+
+      for (const q of QUESTIONS) {
+        const idx = answers[q.id];
+        if (idx == null) continue;
+        const base = HEART_VALUES[idx];
+        axisScores[q.axis] += base * q.direction;
+      }
+
+      // 各軸から文字を決める
+      const codeLetters = {};
+      // QF
+      codeLetters.QF = axisScores.QF >= 0 ? "Q" : "F";
+      // SM
+      codeLetters.SM = axisScores.SM >= 0 ? "S" : "M";
+      // CW
+      codeLetters.CW = axisScores.CW >= 0 ? "C" : "W";
+      // HG
+      codeLetters.HG = axisScores.HG >= 0 ? "H" : "G";
+
+      const code =
+        codeLetters.QF + codeLetters.SM + codeLetters.CW + codeLetters.HG;
+
+      const profile = TYPE_PROFILES[code] || {
+        name: "未定義タイプ",
+        catch: "診断ロジックに未定義のパターンです。",
+        love: "",
+        work: "",
+        strengths: [],
+        weaknesses: [],
+        bestMatch: [],
+      };
+
+      // 表示
+      quizView.style.display = "none";
+      resultView.style.display = "";
+
+      resultTypeNameEl.textContent = profile.name;
+      resultCodeEl.textContent = code;
+      resultCatchEl.textContent = profile.catch;
+      resultLoveEl.textContent = profile.love;
+      resultWorkEl.textContent = profile.work;
+
+      // axis chips
+      axisChipsEl.innerHTML = "";
+      const letters = [
+        codeLetters.QF,
+        codeLetters.SM,
+        codeLetters.CW,
+        codeLetters.HG,
+      ];
+      for (const letter of letters) {
+        const chip = document.createElement("span");
+        chip.className = "axis-chip";
+        chip.textContent = AXIS_LABELS[letter];
+        axisChipsEl.appendChild(chip);
+      }
+
+      // strengths / weaknesses
+      resultStrengthsEl.innerHTML = "";
+      (profile.strengths || []).forEach((s) => {
+        const li = document.createElement("li");
+        li.textContent = s;
+        resultStrengthsEl.appendChild(li);
+      });
+
+      resultWeaknessesEl.innerHTML = "";
+      (profile.weaknesses || []).forEach((w) => {
+        const li = document.createElement("li");
+        li.textContent = w;
+        resultWeaknessesEl.appendChild(li);
+      });
+
+      resultBestEl.textContent = (profile.bestMatch || []).join("、");
+    }
+
+    // ===============================
+    // イベント
+    // ===============================
+    prevBtn.addEventListener("click", () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion();
+      }
+    });
+    nextBtn.addEventListener("click", () => {
+      const total = QUESTIONS.length;
+      if (currentIndex < total - 1) {
+        currentIndex++;
+        renderQuestion();
+      } else {
+        // 全回答チェック
+        for (const q of QUESTIONS) {
+          if (answers[q.id] == null) {
+            alert("すべての質問に回答してください。");
+            return;
+          }
+        }
+        calculateResult();
+      }
+    });
+    restartBtn.addEventListener("click", resetQuiz);
+
+    // 初期描画
+    renderQuestion();
+  </script>
+</body>
+</html>
