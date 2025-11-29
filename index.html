@@ -137,7 +137,7 @@
     }
 
     .hearts-row {
-      margin-top: 18px;
+      margin-bottom: 18px;
       display: flex;
       justify-content: center;
       gap: 8px;
@@ -168,6 +168,11 @@
       transform: translateY(-1px) scale(1.08);
       background: #fef9c3;
       box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
+    }
+    .heart-btn.medium {
+      width: 36px;
+      height: 36px;
+      font-size: 16px;
     }
     .heart-btn.small {
       width: 32px;
@@ -778,7 +783,8 @@
       for (let i = 0; i < 6; i++) {
         const btn = document.createElement("button");
         const side = i < 3 ? "A" : "B";
-        btn.className = "heart-btn" + (i === 1 || i === 4 ? " small" : "");
+        btn.className = "heart-btn" + (i === 2 || i === 3 ? " small" : "");
+        btn.className = "heart-btn" + (i === 1 || i === 4 ? " medium" : "");
         btn.dataset.value = String(i);
         btn.dataset.side = side;
         btn.innerHTML = "❤";
