@@ -331,6 +331,87 @@
       display: flex;
       justify-content: center;
     }
+
+    /* キャラクター一覧セクション */
+    .character-list-section {
+      margin: 40px auto 4px;
+      max-width: 720px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .character-list-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      text-align: left;
+    }
+    .character-list-sub {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 12px;
+    }
+    .character-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .character-card {
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      text-align: left;
+    }
+    .character-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+      background: #ffffff;
+    }
+    .character-card-thumb {
+      flex-shrink: 0;
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      object-fit: cover;
+      background: #e5e7eb;
+    }
+    .character-card-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .character-card-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+      color: #111827;
+    }
+    .character-card-code {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-bottom: 2px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .character-card-catch {
+      font-size: 0.8rem;
+      color: #4b5563;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .character-card-arrow {
+      margin-top: 4px;
+      font-size: 0.75rem;
+      color: #10b981;
+    }
   </style>
 </head>
 <body>
@@ -385,7 +466,7 @@
           <div class="result-header">
             <div class="result-tag">診断結果</div>
             <div class="result-image-wrap">
-            <img id="result-image" alt="タイプイメージ" style="max-width:120px;border-radius:999px;box-shadow:0 10px 25px rgba(15,23,42,0.25);">
+              <img id="result-image" alt="タイプイメージ" style="max-width:120px;border-radius:999px;box-shadow:0 10px 25px rgba(15,23,42,0.25);">
             </div>
             <div id="result-type-name" class="result-type-name"></div>
             <div id="result-code" class="result-code"></div>
@@ -420,6 +501,15 @@
             </button>
           </div>
         </div>
+
+        <!-- キャラクター一覧 -->
+        <section id="character-list-section" class="character-list-section">
+          <h2 class="character-list-title">ウーマンタイプ16 一覧</h2>
+          <p class="character-list-sub">
+            診断結果に関係なく、全16タイプのキャラクターを確認できます。カードをタップすると、そのタイプの詳細プロフィールが表示されます。
+          </p>
+          <div id="character-list" class="character-grid"></div>
+        </section>
 
       </div>
     </main>
@@ -589,377 +679,388 @@
     };
 
     // ===============================
-    // タイプ定義
+    // タイプ定義（画像ファイル名を大文字に統一）
     // ===============================
-const TYPE_PROFILES = {
-  QSWG: {
-    image: "/images/qswg.png", // カリスマ野心クイーン用の画像
-    name: "カリスマ野心クイーン",
-    catch: "場を動かし、未来も動かす“革命ガール”。",
-    love:
-      "恋愛は人生のメインステージ。追う恋・攻める恋が得意で、「この人だ」と思えば一気に距離を詰めます。相手にも向上心やビジョンを求めるため、だらけた関係や曖昧な関係には冷めがちです。",
-    work:
-      "ビジョンを描き、そこに人を巻き込んでいくリーダータイプ。営業・企画・事業開発など、数字と責任がハッキリしている環境で強さを発揮します。短期的な成果と中長期の戦略の両方を見られる“推進エンジン”的存在です。",
-    strengths: [
-      "目標に向けて周りを巻き込むリーダーシップ",
-      "決断が早く、迷っても行動で修正できる突破力",
-      "プレゼン・交渉・発信など対外的な表現が得意",
-      "ピンチの場面ほど冷静に仕切れる度胸"
-    ],
-    weaknesses: [
-      "自分のペースを人に押しつけてしまうリスク",
-      "人に任せるより自分でやった方が早い…となりがち",
-      "弱みや不安を見せるのが苦手で“強い人”を続けてしまう",
-      "恋愛でも仕事モードになり、相手を“プロジェクト化”しがち"
-    ],
-    bestMatch: ["FMC H", "FMCG"]
-  },
+    const TYPE_PROFILES = {
+      QSWG: {
+        image: "/images/QSWG.png",
+        name: "カリスマ野心クイーン",
+        catch: "場を動かし、未来も動かす“革命ガール”。",
+        love:
+          "恋愛は人生のメインステージ。追う恋・攻める恋が得意で、「この人だ」と思えば一気に距離を詰めます。相手にも向上心やビジョンを求めるため、だらけた関係や曖昧な関係には冷めがちです。",
+        work:
+          "ビジョンを描き、そこに人を巻き込んでいくリーダータイプ。営業・企画・事業開発など、数字と責任がハッキリしている環境で強さを発揮します。短期的な成果と中長期の戦略の両方を見られる“推進エンジン”的存在です。",
+        strengths: [
+          "目標に向けて周りを巻き込むリーダーシップ",
+          "決断が早く、迷っても行動で修正できる突破力",
+          "プレゼン・交渉・発信など対外的な表現が得意",
+          "ピンチの場面ほど冷静に仕切れる度胸"
+        ],
+        weaknesses: [
+          "自分のペースを人に押しつけてしまうリスク",
+          "人に任せるより自分でやった方が早い…となりがち",
+          "弱みや不安を見せるのが苦手で“強い人”を続けてしまう",
+          "恋愛でも仕事モードになり、相手を“プロジェクト化”しがち"
+        ],
+        bestMatch: ["FMCH", "FMCG"]
+      },
 
-  QSWH: {
-    image: "/images/qswh.png",
-    name: "パーティー姉御",
-    catch: "楽しさと面倒見で人を惹きつける、人心掌握の魔女。",
-    love:
-      "一緒にいて“楽しいかどうか”が最重要。場の空気を読みながら相手を立てつつ、自分も楽しみたいタイプです。恋人とは友達感覚でわいわいしたい一方、心の奥では長く続く安心感も求めています。",
-    work:
-      "調整力とコミュ力の塊。イベント企画・営業・人事・広報など、人と場を動かす仕事で大活躍。誰とでも一定の関係を作れる一方で、裏方の泥臭い部分もちゃんと引き受ける“頼れる姉御ポジション”です。",
-    strengths: [
-      "初対面でもすぐに打ち解けられる社交性",
-      "場の空気を読み、空気を作り直せる手腕",
-      "人の本音を聞き出し、うまく調整できる",
-      "面倒見がよく、年下・後輩から強く慕われる"
-    ],
-    weaknesses: [
-      "「楽しい人」として期待され続けて疲れやすい",
-      "自分の悩みを真面目に相談できる相手が少なくなりがち",
-      "ノリで予定を詰めすぎて、自分時間がなくなることも",
-      "好かれたい気持ちから、断るのが苦手"
-    ],
-    bestMatch: ["FM CG", "FMCH"]
-  },
+      QSWH: {
+        image: "/images/QSWH.png",
+        name: "パーティー姉御",
+        catch: "楽しさと面倒見で人を惹きつける、人心掌握の魔女。",
+        love:
+          "一緒にいて“楽しいかどうか”が最重要。場の空気を読みながら相手を立てつつ、自分も楽しみたいタイプです。恋人とは友達感覚でわいわいしたい一方、心の奥では長く続く安心感も求めています。",
+        work:
+          "調整力とコミュ力の塊。イベント企画・営業・人事・広報など、人と場を動かす仕事で大活躍。誰とでも一定の関係を作れる一方で、裏方の泥臭い部分もちゃんと引き受ける“頼れる姉御ポジション”です。",
+        strengths: [
+          "初対面でもすぐに打ち解けられる社交性",
+          "場の空気を読み、空気を作り直せる手腕",
+          "人の本音を聞き出し、うまく調整できる",
+          "面倒見がよく、年下・後輩から強く慕われる"
+        ],
+        weaknesses: [
+          "「楽しい人」として期待され続けて疲れやすい",
+          "自分の悩みを真面目に相談できる相手が少なくなりがち",
+          "ノリで予定を詰めすぎて、自分時間がなくなることも",
+          "好かれたい気持ちから、断るのが苦手"
+        ],
+        bestMatch: ["FMCG", "FMCH"]
+      },
 
-  QSCG: {
-    image: "/images/qscg.png",
-    name: "戦略家リーダー女子",
-    catch: "静かに勝ち続ける、“デキる女”の代表格。",
-    love:
-      "恋愛でも“ちゃんと考える”タイプ。情よりも相性や価値観、将来設計を重視しがちで、一度決めた相手には誠実に向き合います。感情のアップダウンは少なめで、安定した関係を築きたい派です。",
-    work:
-      "計画・仕組みづくり・数字管理が得意。プロジェクトリーダーやマネージャーとして、現場と経営の橋渡しができます。リスクを見据えて手を打てるため、大きなトラブルを未然に防ぐ“堅実な司令塔”です。",
-    strengths: [
-      "物事を俯瞰して全体設計できる",
-      "タスク管理やスケジュール感覚が正確",
-      "感情ではなく事実ベースで判断できる",
-      "責任感が強く、最後までやり切る粘り強さ"
-    ],
-    weaknesses: [
-      "感情表現が少なく、“冷たい”と誤解されることも",
-      "理詰めで考えすぎて、直感や楽しさを後回しにしがち",
-      "弱みを見せることに抵抗があり、頼れない",
-      "ロマンチックな雰囲気づくりはやや苦手"
-    ],
-    bestMatch: ["F SCH", "FSWG"]
-  },
+      QSCG: {
+        image: "/images/QSCG.png",
+        name: "戦略家リーダー女子",
+        catch: "静かに勝ち続ける、“デキる女”の代表格。",
+        love:
+          "恋愛でも“ちゃんと考える”タイプ。情よりも相性や価値観、将来設計を重視しがちで、一度決めた相手には誠実に向き合います。感情のアップダウンは少なめで、安定した関係を築きたい派です。",
+        work:
+          "計画・仕組みづくり・数字管理が得意。プロジェクトリーダーやマネージャーとして、現場と経営の橋渡しができます。リスクを見据えて手を打てるため、大きなトラブルを未然に防ぐ“堅実な司令塔”です。",
+        strengths: [
+          "物事を俯瞰して全体設計できる",
+          "タスク管理やスケジュール感覚が正確",
+          "感情ではなく事実ベースで判断できる",
+          "責任感が強く、最後までやり切る粘り強さ"
+        ],
+        weaknesses: [
+          "感情表現が少なく、“冷たい”と誤解されることも",
+          "理詰めで考えすぎて、直感や楽しさを後回しにしがち",
+          "弱みを見せることに抵抗があり、頼れない",
+          "ロマンチックな雰囲気づくりはやや苦手"
+        ],
+        bestMatch: ["FSCH", "FSWG"]
+      },
 
-  QSCH: {
-    image: "/images/qsch.png",
-    name: "お姉さん幹事長",
-    catch: "気遣いと決断力を兼ね備えた、“縁の下の司令塔”。",
-    love:
-      "恋人のスケジュールや体調まで把握し、さりげなく支えるタイプ。表立って甘えるというより、段取りと気配りで愛情を示します。ただし我慢しすぎると、ふとした瞬間に不満が噴き出すことも。",
-    work:
-      "“とりあえずこの人に任せておけば安心”と思われる存在。進行管理・調整・事務・チームリーダーなど、組織のハブ役に最適です。現場感覚もありながら、全体バランスも取れる実務リーダータイプです。",
-    strengths: [
-      "人の状況をよく見てフォローできる",
-      "調整ごとを丸く収める力が高い",
-      "場と人の両方を大切にするバランス感覚",
-      "「頼れる人」として長く重宝される"
-    ],
-    weaknesses: [
-      "自分の本音を後回しにしてしまう",
-      "“聞き役”に回りすぎて、心がすり減ることも",
-      "頼られすぎてキャパオーバーしがち",
-      "恋愛でも“お母さん役”ポジションになりやすい"
-    ],
-    bestMatch: ["FMWG", "FMW H"]
-  },
+      QSCH: {
+        image: "/images/QSCH.png",
+        name: "お姉さん幹事長",
+        catch: "気遣いと決断力を兼ね備えた、“縁の下の司令塔”。",
+        love:
+          "恋人のスケジュールや体調まで把握し、さりげなく支えるタイプ。表立って甘えるというより、段取りと気配りで愛情を示します。ただし我慢しすぎると、ふとした瞬間に不満が噴き出すことも。",
+        work:
+          "“とりあえずこの人に任せておけば安心”と思われる存在。進行管理・調整・事務・チームリーダーなど、組織のハブ役に最適です。現場感覚もありながら、全体バランスも取れる実務リーダータイプです。",
+        strengths: [
+          "人の状況をよく見てフォローできる",
+          "調整ごとを丸く収める力が高い",
+          "場と人の両方を大切にするバランス感覚",
+          "「頼れる人」として長く重宝される"
+        ],
+        weaknesses: [
+          "自分の本音を後回しにしてしまう",
+          "“聞き役”に回りすぎて、心がすり減ることも",
+          "頼られすぎてキャパオーバーしがち",
+          "恋愛でも“お母さん役”ポジションになりやすい"
+        ],
+        bestMatch: ["FMWG", "FMWH"]
+      },
 
-  QMWG: {
-    image: "/images/qmwg.png",
-    name: "ストイック変革クイーン",
-    catch: "静かな情熱で世界を変える、“研究肌リーダー”。",
-    love:
-      "広く浅くより、狭く深い関係を好むタイプ。恋人とはお互いの世界観や思想レベルでつながりたいと感じます。束縛は苦手ですが、精神的な絆はとても重く・深くなりがちです。",
-    work:
-      "分析・研究・改善・新規企画など、“変化を生み出す裏方エンジン”。派手さより質を重視し、時間をかけて大きな成果を出すタイプです。表に立つリーダーというより、“頭脳側のリーダー”になりやすいです。",
-    strengths: [
-      "物事を深く掘り下げ、本質を突き止める力",
-      "長期目線で地道な努力を続けられる",
-      "感情に流されず、冷静に判断できる",
-      "少数精鋭のチームと相性が良い"
-    ],
-    weaknesses: [
-      "完璧を求めすぎて動き出しが遅くなる",
-      "感情を内側に溜め込みやすい",
-      "ライトな雑談やノリに合わせるのは少し疲れる",
-      "恋愛でも“わかる人だけ分かってくれればいい”になりがち"
-    ],
-    bestMatch: ["FSWH", "FSWG"]
-  },
+      QMWG: {
+        image: "/images/QMWG.png",
+        name: "ストイック変革クイーン",
+        catch: "静かな情熱で世界を変える、“研究肌リーダー”。",
+        love:
+          "広く浅くより、狭く深い関係を好むタイプ。恋人とはお互いの世界観や思想レベルでつながりたいと感じます。束縛は苦手ですが、精神的な絆はとても重く・深くなりがちです。",
+        work:
+          "分析・研究・改善・新規企画など、“変化を生み出す裏方エンジン”。派手さより質を重視し、時間をかけて大きな成果を出すタイプです。表に立つリーダーというより、“頭脳側のリーダー”になりやすいです。",
+        strengths: [
+          "物事を深く掘り下げ、本質を突き止める力",
+          "長期目線で地道な努力を続けられる",
+          "感情に流されず、冷静に判断できる",
+          "少数精鋭のチームと相性が良い"
+        ],
+        weaknesses: [
+          "完璧を求めすぎて動き出しが遅くなる",
+          "感情を内側に溜め込みやすい",
+          "ライトな雑談やノリに合わせるのは少し疲れる",
+          "恋愛でも“わかる人だけ分かってくれればいい”になりがち"
+        ],
+        bestMatch: ["FSWH", "FSWG"]
+      },
 
-  QMWH: {
-    image: "/images/qmwh.png",
-    name: "裏方プロデューサー女子",
-    catch: "人を前に押し出し、自分は影で支える“黒幕的お姉さん”。",
-    love:
-      "相手の夢や目標を応援することに喜びを感じるタイプ。自分からガンガン仕掛けるより、相手の動きを見ながらベストなサポートを考えます。言葉は少なくても、行動や気遣いで愛情を表現するスタイルです。",
-    work:
-      "マネージャー・PM・秘書・コーディネーターなど、“裏で回す仕事”に強い。前に出る人の弱点やリスクをよく見ており、事前にケアしたり、段取り・仕組みで支える“プロデューサー気質”です。",
-    strengths: [
-      "観察力が高く、人の才能や危うさを見抜ける",
-      "人の成長を長期的に支える器の大きさ",
-      "大事なところで冷静に状況を整理できる",
-      "自分が目立たなくてもOKという精神的な余裕"
-    ],
-    weaknesses: [
-      "自分の貢献が“見えづらい”ポジションに回りがち",
-      "感謝されないときに、虚しさを感じやすい",
-      "評価や給料に反映されにくい働きを背負いやすい",
-      "恋愛でも“サポート役”に徹しすぎて疲れてしまうことも"
-    ],
-    bestMatch: ["F SCH", "FSCG"]
-  },
+      QMWH: {
+        image: "/images/QMWH.png",
+        name: "裏方プロデューサー女子",
+        catch: "人を前に押し出し、自分は影で支える“黒幕的お姉さん”。",
+        love:
+          "相手の夢や目標を応援することに喜びを感じるタイプ。自分からガンガン仕掛けるより、相手の動きを見ながらベストなサポートを考えます。言葉は少なくても、行動や気遣いで愛情を表現するスタイルです。",
+        work:
+          "マネージャー・PM・秘書・コーディネーターなど、“裏で回す仕事”に強い。前に出る人の弱点やリスクをよく見ており、事前にケアしたり、段取り・仕組みで支える“プロデューサー気質”です。",
+        strengths: [
+          "観察力が高く、人の才能や危うさを見抜ける",
+          "人の成長を長期的に支える器の大きさ",
+          "大事なところで冷静に状況を整理できる",
+          "自分が目立たなくてもOKという精神的な余裕"
+        ],
+        weaknesses: [
+          "自分の貢献が“見えづらい”ポジションに回りがち",
+          "感謝されないときに、虚しさを感じやすい",
+          "評価や給料に反映されにくい働きを背負いやすい",
+          "恋愛でも“サポート役”に徹しすぎて疲れてしまうことも"
+        ],
+        bestMatch: ["FSCH", "FSCG"]
+      },
 
-  QMCG: {
-    image: "/images/qmcg.png",
-    name: "静かなエリート",
-    catch: "多くを語らず結果で示す、“影の実力者”。",
-    love:
-      "恋愛の優先度はそこまで高くないように見えて、実はかなり一途。感情表現が派手ではない分、行動や継続性で愛情を示すタイプです。信頼関係が築けた相手には、とても深い安心感を提供します。",
-    work:
-      "専門職・企画・分析・管理系など、“一人で深く考える仕事”に強い。目立つより、じわじわと成果を積み上げていきます。周囲の期待値を超える品質を出し、気づけば「いないと困る人」になっているタイプです。",
-    strengths: [
-      "ブレずに継続できる芯の強さ",
-      "論理的でミスが少なく、信頼されやすい",
-      "責任範囲をきっちり守る誠実さ",
-      "長期的な積み上げを苦にしない"
-    ],
-    weaknesses: [
-      "感情表現が控えめで、何を考えているか分かりづらい",
-      "柔軟な方向転換が苦手で、変化にストレスを感じやすい",
-      "プライドが高く、失敗を人に見せたくない",
-      "恋愛で“つまらない人”と誤解されるリスク"
-    ],
-    bestMatch: ["FSWH", "FMW H"]
-  },
+      QMCG: {
+        image: "/images/QMCG.png",
+        name: "静かなエリート",
+        catch: "多くを語らず結果で示す、“影の実力者”。",
+        love:
+          "恋愛の優先度はそこまで高くないように見えて、実はかなり一途。感情表現が派手ではない分、行動や継続性で愛情を示すタイプです。信頼関係が築けた相手には、とても深い安心感を提供します。",
+        work:
+          "専門職・企画・分析・管理系など、“一人で深く考える仕事”に強い。目立つより、じわじわと成果を積み上げていきます。周囲の期待値を超える品質を出し、気づけば「いないと困る人」になっているタイプです。",
+        strengths: [
+          "ブレずに継続できる芯の強さ",
+          "論理的でミスが少なく、信頼されやすい",
+          "責任範囲をきっちり守る誠実さ",
+          "長期的な積み上げを苦にしない"
+        ],
+        weaknesses: [
+          "感情表現が控えめで、何を考えているか分かりづらい",
+          "柔軟な方向転換が苦手で、変化にストレスを感じやすい",
+          "プライドが高く、失敗を人に見せたくない",
+          "恋愛で“つまらない人”と誤解されるリスク"
+        ],
+        bestMatch: ["FSWH", "FMWH"]
+      },
 
-  QMCH: {
-    image: "/images/qmch.png",
-    name: "頼れる参謀おかん",
-    catch: "静かな愛情と洞察で支える、“裏のボス”。",
-    love:
-      "相手の生活・体調・メンタルまでトータルで支えたくなるタイプ。表ではあまり騒がないものの、心の中では相手の人生プランまで真剣に考えています。情が深く、一度つながると簡単には手放しません。",
-    work:
-      "チームのナレッジ管理・後輩育成・改善提案など、組織の土台づくりで光るタイプ。全体像を理解した上で“どこを整えるべきか”を考えられる参謀役。表に立つリーダーの右腕としても優秀です。",
-    strengths: [
-      "相手の弱みごと受け止める懐の深さ",
-      "中長期で物事を見て動ける視野の広さ",
-      "表に出ない課題にも気づける洞察力",
-      "困っている人を放っておけない優しさ"
-    ],
-    weaknesses: [
-      "自分の感情より周りを優先しすぎてしまう",
-      "「助けて」が言えず、疲労をため込みやすい",
-      "頑張りが“当たり前”扱いされやすい",
-      "恋愛で“都合のいい優しい人”ポジションにされるリスク"
-    ],
-    bestMatch: ["FSWG", "FSCH"]
-  },
+      QMCH: {
+        image: "/images/QMCH.png",
+        name: "頼れる参謀おかん",
+        catch: "静かな愛情と洞察で支える、“裏のボス”。",
+        love:
+          "相手の生活・体調・メンタルまでトータルで支えたくなるタイプ。表ではあまり騒がないものの、心の中では相手の人生プランまで真剣に考えています。情が深く、一度つながると簡単には手放しません。",
+        work:
+          "チームのナレッジ管理・後輩育成・改善提案など、組織の土台づくりで光るタイプ。全体像を理解した上で“どこを整えるべきか”を考えられる参謀役。表に立つリーダーの右腕としても優秀です。",
+        strengths: [
+          "相手の弱みごと受け止める懐の深さ",
+          "中長期で物事を見て動ける視野の広さ",
+          "表に出ない課題にも気づける洞察力",
+          "困っている人を放っておけない優しさ"
+        ],
+        weaknesses: [
+          "自分の感情より周りを優先しすぎてしまう",
+          "「助けて」が言えず、疲労をため込みやすい",
+          "頑張りが“当たり前”扱いされやすい",
+          "恋愛で“都合のいい優しい人”ポジションにされるリスク"
+        ],
+        bestMatch: ["FSWG", "FSCH"]
+      },
 
-  FSWG: {
-    image: "/images/fswg.png",
-    name: "フットワーク軽めフリーランサー",
-    catch: "ノリと直感で世界を広げる、自由人タイプ。",
-    love:
-      "恋愛は“楽しいかどうか”と“今フィットするか”が大事。気が合えば一気に距離が縮まり、合わなければすっとフェードアウトしがち。縛られすぎる関係は苦手で、自由度の高いパートナーシップを好みます。",
-    work:
-      "営業・クリエイティブ・イベント・接客など、“動きながら考える仕事”で真価を発揮。新しいアイデアや人をつなぐことが得意で、変化の大きい環境やフリーランス的な働き方とも相性が良いです。",
-    strengths: [
-      "行動が早く、チャンスを逃しにくい",
-      "人との距離感を柔軟に変えられる",
-      "アイデアとひらめきが豊富",
-      "変化やカオスに強い適応力"
-    ],
-    weaknesses: [
-      "飽きっぽく、継続や管理が苦手になりやすい",
-      "スケジュールがざっくりでトラブルを呼ぶことも",
-      "気分に仕事や恋愛が左右されやすい",
-      "“ちゃんとやる”フェーズでストレスが溜まりがち"
-    ],
-    bestMatch: ["QMCH", "QSCG"]
-  },
+      FSWG: {
+        image: "/images/FSWG.png",
+        name: "フットワーク軽めフリーランサー",
+        catch: "ノリと直感で世界を広げる、自由人タイプ。",
+        love:
+          "恋愛は“楽しいかどうか”と“今フィットするか”が大事。気が合えば一気に距離が縮まり、合わなければすっとフェードアウトしがち。縛られすぎる関係は苦手で、自由度の高いパートナーシップを好みます。",
+        work:
+          "営業・クリエイティブ・イベント・接客など、“動きながら考える仕事”で真価を発揮。新しいアイデアや人をつなぐことが得意で、変化の大きい環境やフリーランス的な働き方とも相性が良いです。",
+        strengths: [
+          "行動が早く、チャンスを逃しにくい",
+          "人との距離感を柔軟に変えられる",
+          "アイデアとひらめきが豊富",
+          "変化やカオスに強い適応力"
+        ],
+        weaknesses: [
+          "飽きっぽく、継続や管理が苦手になりやすい",
+          "スケジュールがざっくりでトラブルを呼ぶことも",
+          "気分に仕事や恋愛が左右されやすい",
+          "“ちゃんとやる”フェーズでストレスが溜まりがち"
+        ],
+        bestMatch: ["QMCH", "QSCG"]
+      },
 
-  FSWH: {
-    image: "/images/fswh.png",
-    name: "恋愛エンタメヒロイン",
-    catch: "恋とドラマを引き寄せる、“物語体質女子”。",
-    love:
-      "恋愛は人生最大のエンタメ。映画のような展開や印象的なシーンに弱く、「物語性」のある恋に惹かれがちです。一方で、本気で好きになると相手中心の生活になりやすく、自分のことは後回しになりがちです。",
-    work:
-      "エンタメ・美容・接客・SNS・広告など“感情を動かす仕事”と相性抜群。表現力が高く、ストーリーを持って人に何かを伝えるのが得意です。人からも“面白い”“かわいい”を集めやすいポジションです。",
-    strengths: [
-      "感情表現が豊かで、人を惹きつける魅力",
-      "言葉・表情・しぐさで相手の気持ちを動かせる",
-      "その場を“ドラマ化”するセンスがある",
-      "人とすぐに仲良くなれるコミュ力"
-    ],
-    weaknesses: [
-      "恋愛に感情を持っていかれすぎて疲れる",
-      "依存的な相手・関係にハマりやすい",
-      "安定したルーティンや地味な作業が退屈に感じる",
-      "現実的な判断が遅れて、後からしんどくなることも"
-    ],
-    bestMatch: ["QMWG", "QMCG"]
-  },
+      FSWH: {
+        image: "/images/FSWH.png",
+        name: "恋愛エンタメヒロイン",
+        catch: "恋とドラマを引き寄せる、“物語体質女子”。",
+        love:
+          "恋愛は人生最大のエンタメ。映画のような展開や印象的なシーンに弱く、「物語性」のある恋に惹かれがちです。一方で、本気で好きになると相手中心の生活になりやすく、自分のことは後回しになりがちです。",
+        work:
+          "エンタメ・美容・接客・SNS・広告など“感情を動かす仕事”と相性抜群。表現力が高く、ストーリーを持って人に何かを伝えるのが得意です。人からも“面白い”“かわいい”を集めやすいポジションです。",
+        strengths: [
+          "感情表現が豊かで、人を惹きつける魅力",
+          "言葉・表情・しぐさで相手の気持ちを動かせる",
+          "その場を“ドラマ化”するセンスがある",
+          "人とすぐに仲良くなれるコミュ力"
+        ],
+        weaknesses: [
+          "恋愛に感情を持っていかれすぎて疲れる",
+          "依存的な相手・関係にハマりやすい",
+          "安定したルーティンや地味な作業が退屈に感じる",
+          "現実的な判断が遅れて、後からしんどくなることも"
+        ],
+        bestMatch: ["QMWG", "QMCG"]
+      },
 
-  FSCG: {
-    image: "/images/fscg.png",
-    name: "調整力オフィスヒロイン",
-    catch: "優しさと有能さを兼ねた、“仕事できる癒し系”。",
-    love:
-      "相手の性格や生活リズムをよく観察しながら、無理のない関係を作っていくタイプ。押しが強い人より、誠実で穏やかな人と相性が良いです。付き合うと、相手の生活の質がじわじわ上がっていきます。",
-    work:
-      "事務・総務・カスタマーサポート・コーディネーターなど、“人と情報を整える仕事”に最適。抜け漏れを防ぎつつ、関係者同士の摩擦も減らす“オフィスの潤滑油”的な存在です。",
-    strengths: [
-      "細かいところまで気が回る",
-      "相手の立場を想像して行動できる",
-      "マイルドさと有能さのバランスが良い",
-      "「この人がいると安心」と思われる存在感"
-    ],
-    weaknesses: [
-      "頼まれると断りづらく、仕事が集中しがち",
-      "自分の評価を低めに見積もりやすい",
-      "強めの人にペースを握られることがある",
-      "恋愛でも“お世話役”ポジションになりがち"
-    ],
-    bestMatch: ["QMWH", "QSCG"]
-  },
+      FSCG: {
+        image: "/images/FSCG.png",
+        name: "調整力オフィスヒロイン",
+        catch: "優しさと有能さを兼ねた、“仕事できる癒し系”。",
+        love:
+          "相手の性格や生活リズムをよく観察しながら、無理のない関係を作っていくタイプ。押しが強い人より、誠実で穏やかな人と相性が良いです。付き合うと、相手の生活の質がじわじわ上がっていきます。",
+        work:
+          "事務・総務・カスタマーサポート・コーディネーターなど、“人と情報を整える仕事”に最適。抜け漏れを防ぎつつ、関係者同士の摩擦も減らす“オフィスの潤滑油”的な存在です。",
+        strengths: [
+          "細かいところまで気が回る",
+          "相手の立場を想像して行動できる",
+          "マイルドさと有能さのバランスが良い",
+          "「この人がいると安心」と思われる存在感"
+        ],
+        weaknesses: [
+          "頼まれると断りづらく、仕事が集中しがち",
+          "自分の評価を低めに見積もりやすい",
+          "強めの人にペースを握られることがある",
+          "恋愛でも“お世話役”ポジションになりがち"
+        ],
+        bestMatch: ["QMWH", "QSCG"]
+      },
 
-  FSCH: {
-    image: "/images/fsch.png",
-    name: "癒し系ムードメイカー",
-    catch: "いるだけで場を柔らかくする、“空気ヒーラー”。",
-    love:
-      "恋人には“安心できること”を最優先で求めるタイプ。刺激よりも、素でいられるかどうかを大事にします。自分からガンガン仕掛けるより、少しずつ距離を詰めていく穏やかな恋愛スタイルです。",
-    work:
-      "どのチームにも一人はいてほしい存在。職場の雰囲気を良くするだけでなく、相談役としても重宝されます。接客・保育・介護・バックオフィスなど、“人のそばで支える仕事”と相性が良いです。",
-    strengths: [
-      "人の話を否定せずに聞ける",
-      "ピリついた空気を和らげることができる",
-      "小さな変化にも気づく繊細な感性",
-      "長く付き合うほど価値が増すタイプ"
-    ],
-    weaknesses: [
-      "自分の意見を飲み込みがち",
-      "嫌われるのが怖くてNOと言いづらい",
-      "人の感情を受け止めすぎて疲れることも",
-      "恋愛で相手に尽くし過ぎてバランスを崩しやすい"
-    ],
-    bestMatch: ["QSCG", "QMWH"]
-  },
+      FSCH: {
+        image: "/images/FSCH.png",
+        name: "癒し系ムードメイカー",
+        catch: "いるだけで場を柔らかくする、“空気ヒーラー”。",
+        love:
+          "恋人には“安心できること”を最優先で求めるタイプ。刺激よりも、素でいられるかどうかを大事にします。自分からガンガン仕掛けるより、少しずつ距離を詰めていく穏やかな恋愛スタイルです。",
+        work:
+          "どのチームにも一人はいてほしい存在。職場の雰囲気を良くするだけでなく、相談役としても重宝されます。接客・保育・介護・バックオフィスなど、“人のそばで支える仕事”と相性が良いです。",
+        strengths: [
+          "人の話を否定せずに聞ける",
+          "ピリついた空気を和らげることができる",
+          "小さな変化にも気づく繊細な感性",
+          "長く付き合うほど価値が増すタイプ"
+        ],
+        weaknesses: [
+          "自分の意見を飲み込みがち",
+          "嫌われるのが怖くてNOと言いづらい",
+          "人の感情を受け止めすぎて疲れることも",
+          "恋愛で相手に尽くし過ぎてバランスを崩しやすい"
+        ],
+        bestMatch: ["QSCG", "QMWH"]
+      },
 
-  FMWG: {
-    image: "/images/fmwg.png",
-    name: "さりげない才能クリエイター",
-    catch: "静かに尖ったセンスを持つ、“無自覚天才肌”。",
-    love:
-      "恋愛は“空気感”と“世界観”が合うかどうかが重要。言葉にしなくても通じ合えるような関係を好みます。派手なアピールはしないものの、ふとした一言や作品で深く刺さるタイプです。",
-    work:
-      "デザイン・文章・音楽・映像・プログラミングなど、“つくる仕事”全般と相性◎。マイペースに集中できる環境があると、一気に才能を開花させます。独立や副業にも向きやすいタイプです。",
-    strengths: [
-      "独自の世界観・美意識を持っている",
-      "細部へのこだわりが強く、作品の完成度が高い",
-      "流行を自分なりに再解釈できる柔軟さ",
-      "一人の時間を有効に使える"
-    ],
-    weaknesses: [
-      "スケジュール管理や見積もりが甘くなりがち",
-      "評価されていないと感じると一気にやる気が落ちる",
-      "人前に出て自分を売るのが少し苦手",
-      "恋愛でも自分から“好き”と言うのが照れくさい"
-    ],
-    bestMatch: ["QSCH", "FSCG"]
-  },
+      FMWG: {
+        image: "/images/FMWG.png",
+        name: "さりげない才能クリエイター",
+        catch: "静かに尖ったセンスを持つ、“無自覚天才肌”。",
+        love:
+          "恋愛は“空気感”と“世界観”が合うかどうかが重要。言葉にしなくても通じ合えるような関係を好みます。派手なアピールはしないものの、ふとした一言や作品で深く刺さるタイプです。",
+        work:
+          "デザイン・文章・音楽・映像・プログラミングなど、“つくる仕事”全般と相性◎。マイペースに集中できる環境があると、一気に才能を開花させます。独立や副業にも向きやすいタイプです。",
+        strengths: [
+          "独自の世界観・美意識を持っている",
+          "細部へのこだわりが強く、作品の完成度が高い",
+          "流行を自分なりに再解釈できる柔軟さ",
+          "一人の時間を有効に使える"
+        ],
+        weaknesses: [
+          "スケジュール管理や見積もりが甘くなりがち",
+          "評価されていないと感じると一気にやる気が落ちる",
+          "人前に出て自分を売るのが少し苦手",
+          "恋愛でも自分から“好き”と言うのが照れくさい"
+        ],
+        bestMatch: ["QSCH", "FSCG"]
+      },
 
-  FMWH: {
-    image: "/images/fmwh.png",
-    name: "流されロマンチスト",
-    catch: "ご縁と雰囲気に弱い、“ふわふわ系ロマンチスト”。",
-    love:
-      "好きになったきっかけを説明しづらい、“なんかいい”で始まる恋が多いタイプ。相手に合わせすぎて自分を見失うこともある一方、ハマると全力で愛情を注ぎます。安心とときめきの両方を求めがちです。",
-    work:
-      "人・もの・空気感を扱う仕事と相性◎。美容・アパレル・カフェ・ブライダルなど、“雰囲気作り”が大事な職場で存在感を発揮します。周りの期待に応えようと頑張る、健気な努力家です。",
-    strengths: [
-      "人の気持ちに寄り添う共感力",
-      "柔らかい雰囲気で場を落ち着かせる",
-      "小さな変化にも気づける繊細さ",
-      "相手に合わせて空気を作れる"
-    ],
-    weaknesses: [
-      "誘われると断れず、予定を詰め込みがち",
-      "“なんとなく”で決めたことを後悔しやすい",
-      "自分の優先順位を下げすぎてしまう",
-      "恋愛で依存関係にハマるリスク"
-    ],
-    bestMatch: ["QSWG", "QMWG"]
-  },
+      FMWH: {
+        image: "/images/FMWH.png",
+        name: "流されロマンチスト",
+        catch: "ご縁と雰囲気に弱い、“ふわふわ系ロマンチスト”。",
+        love:
+          "好きになったきっかけを説明しづらい、“なんかいい”で始まる恋が多いタイプ。相手に合わせすぎて自分を見失うこともある一方、ハマると全力で愛情を注ぎます。安心とときめきの両方を求めがちです。",
+        work:
+          "人・もの・空気感を扱う仕事と相性◎。美容・アパレル・カフェ・ブライダルなど、“雰囲気作り”が大事な職場で存在感を発揮します。周りの期待に応えようと頑張る、健気な努力家です。",
+        strengths: [
+          "人の気持ちに寄り添う共感力",
+          "柔らかい雰囲気で場を落ち着かせる",
+          "小さな変化にも気づける繊細さ",
+          "相手に合わせて空気を作れる"
+        ],
+        weaknesses: [
+          "誘われると断れず、予定を詰め込みがち",
+          "“なんとなく”で決めたことを後悔しやすい",
+          "自分の優先順位を下げすぎてしまう",
+          "恋愛で依存関係にハマるリスク"
+        ],
+        bestMatch: ["QSWG", "QMWG"]
+      },
 
-  FMCG: {
-    image: "/images/fmcg.png",
-    name: "堅実マイペース職人",
-    catch: "静かに積み上げていく、“ミニマリスト気質”。",
-    love:
-      "恋愛は慎重スタート・堅実継続タイプ。派手なアプローチより、日々の誠実さや生活感の相性を重視します。一度決めた相手を長く大事にする代わりに、簡単には心を開かないところもあります。",
-    work:
-      "経理・事務・品質管理・研究・職人系など、“ミスが少ないこと”が武器になる仕事で強さを発揮。派手さはないものの、周囲が信頼を置く“職人ポジション”になりやすいです。",
-    strengths: [
-      "コツコツ型の継続力が高い",
-      "堅実で大きなミスをしにくい",
-      "約束や納期をしっかり守る",
-      "無駄な浪費や衝動買いが少ない"
-    ],
-    weaknesses: [
-      "変化やリスクに慎重すぎてチャンスを逃しがち",
-      "環境が大きく変わると強いストレスになる",
-      "“面白みがない”と誤解されることも",
-      "恋愛でも守りに入りすぎて進展が遅くなりやすい"
-    ],
-    bestMatch: ["QSWH", "QSCG"]
-  },
+      FMCG: {
+        image: "/images/FMCG.png",
+        name: "堅実マイペース職人",
+        catch: "静かに積み上げていく、“ミニマリスト気質”。",
+        love:
+          "恋愛は慎重スタート・堅実継続タイプ。派手なアプローチより、日々の誠実さや生活感の相性を重視します。一度決めた相手を長く大事にする代わりに、簡単には心を開かないところもあります。",
+        work:
+          "経理・事務・品質管理・研究・職人系など、“ミスが少ないこと”が武器になる仕事で強さを発揮。派手さはないものの、周囲が信頼を置く“職人ポジション”になりやすいです。",
+        strengths: [
+          "コツコツ型の継続力が高い",
+          "堅実で大きなミスをしにくい",
+          "約束や納期をしっかり守る",
+          "無駄な浪費や衝動買いが少ない"
+        ],
+        weaknesses: [
+          "変化やリスクに慎重すぎてチャンスを逃しがち",
+          "環境が大きく変わると強いストレスになる",
+          "“面白みがない”と誤解されることも",
+          "恋愛でも守りに入りすぎて進展が遅くなりやすい"
+        ],
+        bestMatch: ["QSWH", "QSCG"]
+      },
 
-  FMCH: {
-    image: "/images/fmch.png",
-    name: "おだやか家庭派",
-    catch: "安定とぬくもりを運ぶ、“家庭的ヒロイン”。",
-    love:
-      "恋人や家族との穏やかな時間を何より大事にするタイプ。派手なサプライズより、日常の小さな幸せを一緒に感じられる相手を求めます。衝突を避けがちな分、モヤモヤは溜め込んでしまいがちです。",
-    work:
-      "バックオフィス・サポート職・受付・医療・福祉など、“人の安心に関わる仕事”と相性が良いです。派手ではないものの、組織の安定感を支える大事な存在になりやすいタイプです。",
-    strengths: [
-      "穏やかで一緒にいるとホッとする存在感",
-      "相手の立場を考えた優しい振る舞い",
-      "決めたことを淡々とやり遂げる安定感",
-      "周囲の人を自然と支える空気感"
-    ],
-    weaknesses: [
-      "自己主張が弱く、我慢が積もりやすい",
-      "環境の変化にストレスを感じやすい",
-      "頑張りが当たり前になり、感謝されにくい",
-      "恋愛で“良い人止まり”になるリスク"
-    ],
-    bestMatch: ["QSWG", "QSWH"]
-  }
-};
+      FMCH: {
+        image: "/images/FMCH.png",
+        name: "おだやか家庭派",
+        catch: "安定とぬくもりを運ぶ、“家庭的ヒロイン”。",
+        love:
+          "恋人や家族との穏やかな時間を何より大事にするタイプ。派手なサプライズより、日常の小さな幸せを一緒に感じられる相手を求めます。衝突を避けがちな分、モヤモヤは溜め込んでしまいがちです。",
+        work:
+          "バックオフィス・サポート職・受付・医療・福祉など、“人の安心に関わる仕事”と相性が良いです。派手ではないものの、組織の安定感を支える大事な存在になりやすいタイプです。",
+        strengths: [
+          "穏やかで一緒にいるとホッとする存在感",
+          "相手の立場を考えた優しい振る舞い",
+          "決めたことを淡々とやり遂げる安定感",
+          "周囲の人を自然と支える空気感"
+        ],
+        weaknesses: [
+          "自己主張が弱く、我慢が積もりやすい",
+          "環境の変化にストレスを感じやすい",
+          "頑張りが当たり前になり、感謝されにくい",
+          "恋愛で“良い人止まり”になるリスク"
+        ],
+        bestMatch: ["QSWG", "QSWH"]
+      }
+    };
+
+    const FALLBACK_PROFILE = {
+      image: "",
+      name: "未定義タイプ",
+      catch: "診断ロジックに未定義のパターンです。",
+      love: "",
+      work: "",
+      strengths: [],
+      weaknesses: [],
+      bestMatch: [],
+    };
 
     // ===============================
     // 状態とDOM
@@ -992,8 +1093,10 @@ const TYPE_PROFILES = {
     const restartBtn = document.getElementById("restart-btn");
     const resultImageEl = document.getElementById("result-image");
 
+    const characterListEl = document.getElementById("character-list");
+
     // ===============================
-    // 画面描画
+    // 画面描画（質問）
     // ===============================
     function renderQuestion() {
       const total = QUESTIONS.length;
@@ -1002,7 +1105,7 @@ const TYPE_PROFILES = {
 
       // progress
       progressTextEl.textContent = `質問 ${currentIndex + 1} / ${total}`;
-      const progressPercent = ((currentIndex) / total) * 100;
+      const progressPercent = (currentIndex / total) * 100;
       progressBarEl.style.width = `${progressPercent}%`;
 
       // question text
@@ -1016,10 +1119,15 @@ const TYPE_PROFILES = {
       for (let i = 0; i < 6; i++) {
         const btn = document.createElement("button");
         const side = i < 3 ? "A" : "B";
-        btn.className = "heart-btn" +　 (i === 1 || i === 4 ? " medium" :  i === 2 || i === 3 ? " small" :  "");
+        let sizeClass = "";
+        if (i === 1 || i === 4) sizeClass = " medium";
+        if (i === 2 || i === 3) sizeClass = " small";
+
+        btn.className = "heart-btn" + sizeClass;
         btn.dataset.value = String(i);
         btn.dataset.side = side;
         btn.innerHTML = "❤";
+
         if (answeredIndex === i) {
           btn.classList.add("selected");
         }
@@ -1046,6 +1154,64 @@ const TYPE_PROFILES = {
       quizView.style.display = "";
       resultView.style.display = "none";
       renderQuestion();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // ===============================
+    // 結果描画（コードから表示）
+    // ===============================
+    function renderResultByCode(code) {
+      const profile = TYPE_PROFILES[code] || FALLBACK_PROFILE;
+
+      quizView.style.display = "none";
+      resultView.style.display = "";
+
+      // 画像
+      if (profile.image) {
+        resultImageEl.src = profile.image;
+        resultImageEl.style.display = "";
+      } else {
+        resultImageEl.style.display = "none";
+      }
+
+      resultTypeNameEl.textContent = profile.name;
+      resultCodeEl.textContent = code;
+      resultCatchEl.textContent = profile.catch;
+      resultLoveEl.textContent = profile.love;
+      resultWorkEl.textContent = profile.work;
+
+      // axis chips（コード文字列から復元）
+      axisChipsEl.innerHTML = "";
+      const letters = code.split(""); // [Q/F, S/M, C/W, H/G]
+      letters.forEach(letter => {
+        const chip = document.createElement("span");
+        chip.className = "axis-chip";
+        chip.textContent = AXIS_LABELS[letter] || letter;
+        axisChipsEl.appendChild(chip);
+      });
+
+      // strengths / weaknesses
+      resultStrengthsEl.innerHTML = "";
+      (profile.strengths || []).forEach((s) => {
+        const li = document.createElement("li");
+        li.textContent = s;
+        resultStrengthsEl.appendChild(li);
+      });
+
+      resultWeaknessesEl.innerHTML = "";
+      (profile.weaknesses || []).forEach((w) => {
+        const li = document.createElement("li");
+        li.textContent = w;
+        resultWeaknessesEl.appendChild(li);
+      });
+
+      resultBestEl.textContent = (profile.bestMatch || []).join("、");
+
+      // 結果位置までスクロール
+      window.scrollTo({
+        top: resultView.offsetTop - 24,
+        behavior: "smooth"
+      });
     }
 
     // ===============================
@@ -1068,78 +1234,51 @@ const TYPE_PROFILES = {
 
       // 各軸から文字を決める
       const codeLetters = {};
-      // QF
       codeLetters.QF = axisScores.QF >= 0 ? "Q" : "F";
-      // SM
       codeLetters.SM = axisScores.SM >= 0 ? "S" : "M";
-      // CW
       codeLetters.CW = axisScores.CW >= 0 ? "C" : "W";
-      // HG
       codeLetters.HG = axisScores.HG >= 0 ? "H" : "G";
 
       const code =
         codeLetters.QF + codeLetters.SM + codeLetters.CW + codeLetters.HG;
 
-      const profile = TYPE_PROFILES[code] || {
-        name: "未定義タイプ",
-        catch: "診断ロジックに未定義のパターンです。",
-        love: "",
-        work: "",
-        strengths: [],
-        weaknesses: [],
-        bestMatch: [],
-      };
+      renderResultByCode(code);
+    }
 
-      // 表示
-      quizView.style.display = "none";
-      resultView.style.display = "";
-      
-      // 画像
-      if (profile.image) {
-          resultImageEl.src = profile.image;
-          resultImageEl.style.display = "";
-      } else {
-      // 万が一 image が未設定のタイプがあっても崩れないように
-          resultImageEl.style.display = "none";
-      }
+    // ===============================
+    // キャラクター一覧生成
+    // ===============================
+    function buildCharacterList() {
+      if (!characterListEl) return;
 
-      resultTypeNameEl.textContent = profile.name;
-      resultCodeEl.textContent = code;
-      resultCatchEl.textContent = profile.catch;
-      resultLoveEl.textContent = profile.love;
-      resultWorkEl.textContent = profile.work;
+      characterListEl.innerHTML = "";
+      Object.entries(TYPE_PROFILES).forEach(([code, profile]) => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "character-card";
 
-      // axis chips
-      axisChipsEl.innerHTML = "";
-      const letters = [
-        codeLetters.QF,
-        codeLetters.SM,
-        codeLetters.CW,
-        codeLetters.HG,
-      ];
-      for (const letter of letters) {
-        const chip = document.createElement("span");
-        chip.className = "axis-chip";
-        chip.textContent = AXIS_LABELS[letter];
-        axisChipsEl.appendChild(chip);
-      }
+        const imgSrc = profile.image || "/images/placeholder.png";
 
-      // strengths / weaknesses
-      resultStrengthsEl.innerHTML = "";
-      (profile.strengths || []).forEach((s) => {
-        const li = document.createElement("li");
-        li.textContent = s;
-        resultStrengthsEl.appendChild(li);
+        card.innerHTML = `
+          <img
+            src="${imgSrc}"
+            alt="${profile.name}"
+            class="character-card-thumb"
+          >
+          <div class="character-card-body">
+            <div class="character-card-name">${profile.name}</div>
+            <div class="character-card-code">${code}</div>
+            <div class="character-card-catch">${profile.catch}</div>
+            <div class="character-card-arrow">このタイプの詳細を見る →</div>
+          </div>
+        `;
+
+        card.addEventListener("click", () => {
+          renderResultByCode(code);
+        });
+
+        characterListEl.appendChild(card);
       });
-
-      resultWeaknessesEl.innerHTML = "";
-      (profile.weaknesses || []).forEach((w) => {
-        const li = document.createElement("li");
-        li.textContent = w;
-        resultWeaknessesEl.appendChild(li);
-      });
-
-      resultBestEl.textContent = (profile.bestMatch || []).join("、");
     }
 
     // ===============================
@@ -1151,6 +1290,7 @@ const TYPE_PROFILES = {
         renderQuestion();
       }
     });
+
     nextBtn.addEventListener("click", () => {
       const total = QUESTIONS.length;
       if (currentIndex < total - 1) {
@@ -1167,9 +1307,11 @@ const TYPE_PROFILES = {
         calculateResult();
       }
     });
+
     restartBtn.addEventListener("click", resetQuiz);
 
     // 初期描画
+    buildCharacterList();
     renderQuestion();
   </script>
 </body>
