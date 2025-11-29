@@ -137,9 +137,10 @@
     }
 
     .hearts-row {
-      margin-bottom: 18px;
+      margin-top: 18px;
       display: flex;
       justify-content: center;
+      align-items: flex-end;
       gap: 8px;
     }
     .heart-btn {
@@ -783,8 +784,7 @@
       for (let i = 0; i < 6; i++) {
         const btn = document.createElement("button");
         const side = i < 3 ? "A" : "B";
-        btn.className = "heart-btn" + (i === 2 || i === 3 ? " small" : "");
-        btn.className = "heart-btn" + (i === 1 || i === 4 ? " medium" : "");
+        btn.className = "heart-btn" + (i === 1 || i === 4 ? i === 2 || i === 3 ? " medium" : "small" : "");
         btn.dataset.value = String(i);
         btn.dataset.side = side;
         btn.innerHTML = "❤";
