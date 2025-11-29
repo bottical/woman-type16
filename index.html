@@ -1328,6 +1328,14 @@
 
     // 初期描画
     buildCharacterList();
+    
+    const params = new URLSearchParams(window.location.search);
+    const presetCode = params.get("type");
+
+    if (presetCode && TYPE_PROFILES[presetCode]) {
+      // 直接結果リンクで開かれたとき：診断スキップして結果表示
+      renderResultByCode(presetCode);
+    } else {
     renderQuestion();
   </script>
 </body>
